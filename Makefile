@@ -4,9 +4,8 @@ clean:
 	rm -rf uploads
 
 check:
-	mkdir uploads
+	mkdir -p uploads
 	go run main.go
-	make diff
 	make clean
 
 diff:

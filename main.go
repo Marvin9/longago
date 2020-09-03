@@ -35,12 +35,21 @@ type Instance struct {
 	alreadyWritten   int
 }
 
+// Controller -
+type Controller struct {
+	pause  chan bool
+	cancel chan bool
+}
+
 var pausedInstances = make(map[string]Instance)
 
 var wg sync.WaitGroup
 
-func instance(p Instance) chan bool {
-	pause := make(chan bool)
+func instance(p Instance) Controller {
+	ctr := Controller{
+		pause:  make(chan bool),
+		cancel: make(chan bool),
+	}
 
 	go (func() {
 		defer wg.Done()
@@ -65,11 +74,18 @@ func instance(p Instance) chan bool {
 		offset := p.alreadyWritten
 		for {
 			select {
-			case <-pause:
+			case <-ctr.pause:
 				pausedInstances[uniqueFileToBeWritten] = Instance{
 					originalFilePath: p.originalFilePath,
 					alreadyWritten:   offset,
 				}
+				return
+			case <-ctr.cancel:
+				_, ok := pausedInstances[uniqueFileToBeWritten]
+				if ok {
+					delete(pausedInstances, uniqueFileToBeWritten)
+				}
+				os.Remove(uniqueFileToBeWritten)
 				return
 			default:
 				read, _ := reader.Read(buffer)
@@ -84,17 +100,22 @@ func instance(p Instance) chan bool {
 		}
 	})()
 
-	return pause
+	return ctr
 }
 
 func main() {
 	wg.Add(1)
-	pause := instance(Instance{
+	ctr := instance(Instance{
 		originalFilePath: "./fixtures/" + use,
 	})
 	time.Sleep(time.Millisecond * 10)
-	pause <- true
+	ctr.pause <- true
 	wg.Add(1)
-	pause = instance(pausedInstances[uniqueFileToBeWritten])
-	wg.Wait()
+	ctr = instance(pausedInstances[uniqueFileToBeWritten])
+	time.Sleep(time.Millisecond * 10)
+	ctr.pause <- true
+	wg.Add(1)
+	ctr = instance(pausedInstances[uniqueFileToBeWritten])
+	time.Sleep(time.Millisecond * 10)
+	ctr.cancel <- true
 }
