@@ -48,7 +48,12 @@ func instance(p Instance) chan bool {
 		checkErr(err)
 		defer fileToRead.Close()
 
-		fileToWrite, err := os.Create(uniqueFileToBeWritten)
+		var fileToWrite *os.File
+		if p.alreadyWritten != 0 {
+			fileToWrite, err = os.OpenFile(uniqueFileToBeWritten, os.O_APPEND|os.O_WRONLY, 0644)
+		} else {
+			fileToWrite, err = os.Create(uniqueFileToBeWritten)
+		}
 		checkErr(err)
 		defer fileToWrite.Close()
 
