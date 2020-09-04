@@ -1,23 +1,30 @@
 package api
 
 import (
-	"fmt"
 	"net/http"
+
+	"github.com/Marvin9/atlan-collect/api/layer"
 
 	"github.com/Marvin9/atlan-collect/utils"
 )
 
 func PauseAPI(w http.ResponseWriter, req *http.Request) {
-	if utils.GetProcessState(utils.FileToBeWritten) == utils.PAUSED {
-		fmt.Fprintf(w, "Another instance is already paused. Please resume it or cancel it to start new instance")
+	fileToBeWritten, _ := layer.ExtractFileToBeWritten(req)
+
+	if utils.GetProcessState(fileToBeWritten) == utils.PAUSED {
+		w.WriteHeader(http.StatusConflict)
+		w.Write(utils.SetResponse(true, "Another instance is already paused. Please resume it or cancel it to start new instance"))
 		return
 	}
 
-	controller, is := utils.GetController(utils.FileToBeWritten)
+	controller, is := utils.GetController(fileToBeWritten)
 	if !is {
-		fmt.Fprintf(w, "No running process")
+		w.WriteHeader(http.StatusNoContent)
+		w.Write(utils.SetResponse(true, "No running process"))
 		return
 	}
+
 	controller.Pause <- true
-	fmt.Fprintf(w, "Successfully paused.")
+	w.WriteHeader(http.StatusOK)
+	w.Write(utils.SetResponse(false, fileToBeWritten))
 }

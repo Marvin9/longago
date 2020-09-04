@@ -1,5 +1,9 @@
 package utils
 
+import (
+	"encoding/json"
+)
+
 type StateType string
 
 const (
@@ -18,4 +22,21 @@ type Instance struct {
 type Controllers struct {
 	Pause  chan bool
 	Cancel chan bool
+}
+
+type RequestType struct {
+	InstanceID string `json:"instance_id"`
+}
+
+type ResponseType struct {
+	Error bool        `json:"error"`
+	Data  interface{} `json:"data"`
+}
+
+func SetResponse(err bool, d interface{}) []byte {
+	rt, _ := json.Marshal(ResponseType{
+		Error: err,
+		Data:  d,
+	})
+	return rt
 }

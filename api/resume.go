@@ -1,7 +1,6 @@
 package api
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/Marvin9/atlan-collect/process"
@@ -10,16 +9,30 @@ import (
 )
 
 func ResumeAPI(w http.ResponseWriter, req *http.Request) {
-	if utils.GetProcessState(utils.FileToBeWritten) != utils.PAUSED {
-		fmt.Fprintf(w, "Instance is not paused, either it is running or not started.")
+	req.ParseMultipartForm(20 << 20)
+	fileToBeWritten := req.FormValue("instance_id")
+
+	if utils.GetProcessState(fileToBeWritten) != utils.PAUSED {
+		w.WriteHeader(http.StatusConflict)
+		w.Write(utils.SetResponse(true, "Instance is not paused, either it is running or not started."))
 		return
 	}
 
-	previousInstance, is := utils.GetProcess(utils.FileToBeWritten)
+	previousInstance, is := utils.GetProcess(fileToBeWritten)
 	if !is {
-		fmt.Fprintf(w, "No previous found. Please start again.")
+		w.WriteHeader(http.StatusNoContent)
+		w.Write(utils.SetResponse(true, "No previous instance found. Please upload again."))
 		return
 	}
-	process.MakeThreadForUploadProcess(utils.FileToBeRead, utils.FileToBeWritten, previousInstance.Offset)
-	fmt.Fprintf(w, "Success.")
+
+	file, _, err := req.FormFile(utils.HTMLFileBodyName)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write(utils.SetResponse(true, "Internal error occured. Please try again."))
+		return
+	}
+
+	process.MakeThreadForUploadProcess(file, fileToBeWritten, previousInstance.Offset)
+	w.WriteHeader(http.StatusOK)
+	w.Write(utils.SetResponse(false, fileToBeWritten))
 }

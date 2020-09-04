@@ -3,29 +3,28 @@ package process
 import (
 	"bufio"
 	"fmt"
+	"mime/multipart"
 	"os"
 	"time"
 
 	"github.com/Marvin9/atlan-collect/utils"
 )
 
-func MakeThreadForUploadProcess(inputFilePath, filePathToWrite string, offsetByte int) utils.Controllers {
+func MakeThreadForUploadProcess(inputFile multipart.File, fileNameToWrite string, offsetByte int) utils.Controllers {
+	filePathToWrite := utils.StoragePrefix + fileNameToWrite
 	ctrl := utils.Controllers{
 		Pause:  make(chan bool),
 		Cancel: make(chan bool),
 	}
 
-	utils.StoreInController(filePathToWrite, ctrl)
+	utils.StoreInController(fileNameToWrite, ctrl)
 
 	go (func() {
-		fileToRead, err := os.Open(inputFilePath)
-		if err != nil {
-			utils.Log(fmt.Sprintf("Error reading file %v.\n%v", inputFilePath, err))
-			return
-		}
+		fileToRead := inputFile
 		defer fileToRead.Close()
 
 		var fileToWrite *os.File
+		var err error
 		if offsetByte != 0 {
 			fileToWrite, err = os.OpenFile(filePathToWrite, os.O_APPEND|os.O_WRONLY, 0644)
 		} else {
@@ -44,33 +43,32 @@ func MakeThreadForUploadProcess(inputFilePath, filePathToWrite string, offsetByt
 		offset := offsetByte
 
 		instance := utils.Instance{
-			OriginalFileWithPath: inputFilePath,
-			FileWhereUploaded:    filePathToWrite,
-			Offset:               offset,
-			State:                utils.RUNNING,
+			FileWhereUploaded: filePathToWrite,
+			Offset:            offset,
+			State:             utils.RUNNING,
 		}
-		utils.StoreInProcess(filePathToWrite, instance)
+		utils.StoreInProcess(fileNameToWrite, instance)
 
 		for {
-			time.Sleep(time.Millisecond * 1)
+			time.Sleep(time.Millisecond * 20)
 			select {
 			case <-ctrl.Pause:
 				utils.Log("Pausing instance")
 				instance.Offset = offset
 				instance.State = utils.PAUSED
-				utils.StoreInProcess(filePathToWrite, instance)
+				utils.StoreInProcess(fileNameToWrite, instance)
 				return
 			case <-ctrl.Cancel:
 				utils.Log("Cancelling instance")
-				utils.Clear(filePathToWrite)
+				utils.Clear(fileNameToWrite)
 				return
 			default:
 				read, _ := fileReader.Read(buffer)
 				offset += read
 				if read == 0 {
 					utils.Log("Done writing file")
-					utils.RemoveController(filePathToWrite)
-					utils.RemoveProcess(filePathToWrite)
+					utils.RemoveController(fileNameToWrite)
+					utils.RemoveProcess(fileNameToWrite)
 					return
 				}
 

@@ -1,22 +1,27 @@
 package api
 
 import (
-	"fmt"
 	"net/http"
 
+	"github.com/Marvin9/atlan-collect/api/layer"
 	"github.com/Marvin9/atlan-collect/utils"
 )
 
 func StopAPI(w http.ResponseWriter, req *http.Request) {
-	if utils.GetProcessState(utils.FileToBeWritten) == utils.NULL {
-		fmt.Fprintf(w, "No instance to stop. Please start instance first")
+	fileToBeWritten, _ := layer.ExtractFileToBeWritten(req)
+
+	if utils.GetProcessState(fileToBeWritten) == utils.NULL {
+		w.WriteHeader(http.StatusConflict)
+		w.Write(utils.SetResponse(true, "No instance to stop. Please start instance first"))
 		return
 	}
-	controller, is := utils.GetController(utils.FileToBeWritten)
+	controller, is := utils.GetController(fileToBeWritten)
 	if !is {
-		fmt.Fprintf(w, "No running process.")
+		w.WriteHeader(http.StatusNoContent)
+		w.Write(utils.SetResponse(true, "No running process to stop."))
 		return
 	}
 	controller.Cancel <- true
-	fmt.Fprintf(w, "Successfully stopped.")
+	w.WriteHeader(http.StatusOK)
+	w.Write(utils.SetResponse(false, "Successfully stopped upload."))
 }

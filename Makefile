@@ -19,3 +19,15 @@ push: clean
 	git commit -m "$(commit)"
 	git config --global credential.helper cache
 	git push origin master
+
+start-request:
+	curl -F file=@"./fixtures/100000.csv" localhost:8000/p/start | json_pp
+
+pause-request:
+	curl -H "content-type: application/json" -X POST -d '{"instance_id": "${instance_id}"}' localhost:8000/p/pause | json_pp
+
+resume-request:
+	curl -F file=@"./fixtures/100000.csv" -F instance_id="${instance_id}" localhost:8000/p/resume | json_pp
+
+stop-request:
+	curl -H "content-type: application/json" -X POST -d '{"instance_id": "${instance_id}"}' localhost:8000/p/stop | json_pp
