@@ -4,4 +4,4 @@ go:
     - 1.14.4
 
 script:
-    - make check
+    - make build
