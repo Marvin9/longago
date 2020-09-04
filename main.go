@@ -75,12 +75,14 @@ func instance(p Instance) Controller {
 		for {
 			select {
 			case <-ctr.pause:
+				logger("Pausing instance")
 				pausedInstances[uniqueFileToBeWritten] = Instance{
 					originalFilePath: p.originalFilePath,
 					alreadyWritten:   offset,
 				}
 				return
 			case <-ctr.cancel:
+				logger("Cancelling instance")
 				_, ok := pausedInstances[uniqueFileToBeWritten]
 				if ok {
 					delete(pausedInstances, uniqueFileToBeWritten)
@@ -110,12 +112,15 @@ func main() {
 	})
 	time.Sleep(time.Millisecond * 10)
 	ctr.pause <- true
+	wg.Wait()
 	wg.Add(1)
 	ctr = instance(pausedInstances[uniqueFileToBeWritten])
 	time.Sleep(time.Millisecond * 10)
 	ctr.pause <- true
+	wg.Wait()
 	wg.Add(1)
 	ctr = instance(pausedInstances[uniqueFileToBeWritten])
 	time.Sleep(time.Millisecond * 10)
 	ctr.cancel <- true
+	wg.Wait()
 }
