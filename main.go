@@ -3,9 +3,12 @@ package main
 import (
 	"bufio"
 	"log"
+	"net/http"
 	"os"
 	"sync"
 	"time"
+
+	"github.com/Marvin9/atlan-collect/api"
 )
 
 func logger(m interface{}) {
@@ -105,7 +108,7 @@ func instance(p Instance) Controller {
 	return ctr
 }
 
-func main() {
+func chunk() {
 	wg.Add(1)
 	ctr := instance(Instance{
 		originalFilePath: "./fixtures/" + use,
@@ -123,4 +126,13 @@ func main() {
 	time.Sleep(time.Millisecond * 10)
 	ctr.cancel <- true
 	wg.Wait()
+}
+
+func main() {
+	http.HandleFunc("/p/start", api.StartUploadAPI)
+	http.HandleFunc("/p/pause", api.PauseAPI)
+	http.HandleFunc("/p/stop", api.StopAPI)
+	http.HandleFunc("/p/resume", api.ResumeAPI)
+
+	log.Fatal(http.ListenAndServe(":8000", nil))
 }
