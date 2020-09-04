@@ -2,7 +2,7 @@
 
 clean:
 	rm -rf tmp
-	rm -rf atlas-collect
+	rm -rf atlan-collect
 
 check:
 	mkdir -p ./tmp/uploads
