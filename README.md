@@ -5,9 +5,6 @@
 
 > Go Start - Stop - Pause - Resume Looooooong upload tasks.
 
-
-<br/>
-
 ### Quick start
 
 Setup ```.env``` file
