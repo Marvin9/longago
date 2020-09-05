@@ -10,14 +10,24 @@ import (
 func StopAPI(w http.ResponseWriter, req *http.Request) {
 	fileToBeWritten, _ := layer.ExtractFileToBeWritten(req)
 
-	if utils.GetProcessState(fileToBeWritten) == utils.NULL {
+	processState := utils.GetProcessState(fileToBeWritten)
+
+	if processState == utils.NULL {
 		w.WriteHeader(http.StatusConflict)
 		w.Write(utils.SetResponse(true, "No instance to stop. Please start instance first"))
 		return
 	}
+
+	if processState == utils.PAUSED {
+		utils.Clear(fileToBeWritten)
+		w.WriteHeader(http.StatusOK)
+		w.Write(utils.SetResponse(false, "Stoppend paused file upload : "+fileToBeWritten))
+		return
+	}
+
 	controller, is := utils.GetController(fileToBeWritten)
 	if !is {
-		w.WriteHeader(http.StatusNoContent)
+		w.WriteHeader(http.StatusBadRequest)
 		w.Write(utils.SetResponse(true, "No running process to stop."))
 		return
 	}

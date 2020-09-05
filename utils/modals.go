@@ -34,9 +34,12 @@ type ResponseType struct {
 }
 
 func SetResponse(err bool, d interface{}) []byte {
-	rt, _ := json.Marshal(ResponseType{
+	rt, e := json.Marshal(ResponseType{
 		Error: err,
 		Data:  d,
 	})
+	if e != nil {
+		Log(e)
+	}
 	return rt
 }

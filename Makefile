@@ -1,4 +1,4 @@
-.PHONY: check diff clean build push
+.PHONY: check diff clean build push start-request pause-request resume-request stop-request
 
 clean:
 	rm -rf tmp

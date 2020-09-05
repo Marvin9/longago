@@ -20,7 +20,7 @@ func ResumeAPI(w http.ResponseWriter, req *http.Request) {
 
 	previousInstance, is := utils.GetProcess(fileToBeWritten)
 	if !is {
-		w.WriteHeader(http.StatusNoContent)
+		w.WriteHeader(http.StatusBadRequest)
 		w.Write(utils.SetResponse(true, "No previous instance found. Please upload again."))
 		return
 	}

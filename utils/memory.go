@@ -41,7 +41,7 @@ func RemoveController(forFile string) {
 }
 
 func Clear(forFile string) {
-	os.Remove(forFile)
+	os.Remove(StoragePrefix + forFile)
 	RemoveProcess(forFile)
 	RemoveController(forFile)
 }

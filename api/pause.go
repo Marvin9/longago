@@ -9,17 +9,22 @@ import (
 )
 
 func PauseAPI(w http.ResponseWriter, req *http.Request) {
-	fileToBeWritten, _ := layer.ExtractFileToBeWritten(req)
+	fileToBeWritten, err := layer.ExtractFileToBeWritten(req)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write(utils.SetResponse(true, "Invalid body"))
+		return
+	}
 
-	if utils.GetProcessState(fileToBeWritten) == utils.PAUSED {
-		w.WriteHeader(http.StatusConflict)
-		w.Write(utils.SetResponse(true, "Another instance is already paused. Please resume it or cancel it to start new instance"))
+	if utils.GetProcessState(fileToBeWritten) != utils.RUNNING {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write(utils.SetResponse(true, "No instance to pause. or already paused one instance"))
 		return
 	}
 
 	controller, is := utils.GetController(fileToBeWritten)
 	if !is {
-		w.WriteHeader(http.StatusNoContent)
+		w.WriteHeader(http.StatusBadRequest)
 		w.Write(utils.SetResponse(true, "No running process"))
 		return
 	}
