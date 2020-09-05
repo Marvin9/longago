@@ -1,38 +1,53 @@
-.PHONY: check diff clean build push start-request pause-request resume-request stop-request storage
-
+.PHONY: clean
 clean:
 	rm -rf tmp
 	rm -rf atlan-collect
 
+.PHONY: storage
 storage:
 	mkdir -p ./tmp/uploads
 
+.PHONY: check
 check: storage
 	go run main.go
 
+.PHONY: test
+test: clean
+	sh ./test.sh
+	make clean
+
+.PHONY: docker-compose-up
 docker-compose-up: storage
 	sudo docker-compose up -d
 
-diff:
-	diff fixtures/100000.csv ./tmp/uploads/100000.csv
-
+.PHONY: build
 build:
 	go build
 
+.PHONY: push
 push: clean
 	git add .
 	git commit -m "$(commit)"
 	git config --global credential.helper cache
 	git push origin master
 
+# test API manually
+# start server by running
+# make docker-compose-up
+# or 
+# make check
+.PHONY: start-request
 start-request:
 	curl -F file=@"./fixtures/100000.csv" localhost:8000/p/start | json_pp
 
+.PHONY: pause-request
 pause-request:
 	curl -H "content-type: application/json" -X POST -d '{"instance_id": "${instance_id}"}' localhost:8000/p/pause | json_pp
 
+.PHONY: resume-request
 resume-request:
 	curl -F file=@"./fixtures/100000.csv" -F instance_id="${instance_id}" localhost:8000/p/resume | json_pp
 
+.PHONY: stop-request
 stop-request:
 	curl -H "content-type: application/json" -X POST -d '{"instance_id": "${instance_id}"}' localhost:8000/p/stop | json_pp
