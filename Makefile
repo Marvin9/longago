@@ -5,7 +5,7 @@ clean:
 
 .PHONY: storage
 storage:
-	mkdir -p ./tmp/uploads
+	sh ./scripts/storage.sh
 
 .PHONY: check
 check: storage
@@ -13,7 +13,7 @@ check: storage
 
 .PHONY: test
 test: clean
-	sh ./test.sh
+	sh ./scripts/test.sh
 	make clean
 
 .PHONY: docker-compose-up
