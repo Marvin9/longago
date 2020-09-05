@@ -1,12 +1,17 @@
-.PHONY: check diff clean build push start-request pause-request resume-request stop-request
+.PHONY: check diff clean build push start-request pause-request resume-request stop-request storage
 
 clean:
 	rm -rf tmp
 	rm -rf atlan-collect
 
-check:
+storage:
 	mkdir -p ./tmp/uploads
+
+check: storage
 	go run main.go
+
+docker-compose-up: storage
+	sudo docker-compose up -d
 
 diff:
 	diff fixtures/100000.csv ./tmp/uploads/100000.csv
