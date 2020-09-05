@@ -1,15 +1,20 @@
 package utils
 
-const (
-	small            = "foo.csv"
-	medium           = "10.csv"
-	large            = "100000.csv"
-	BufferSize       = 1024
-	HTMLFileBodyName = "file"
-	StoragePrefix    = "./tmp/uploads/"
+import (
+	"os"
 )
 
-var use = large
+const (
+	small  = "foo.csv"
+	medium = "10.csv"
+	large  = "100000.csv"
+	// BufferSize - size to be read in one loop
+	BufferSize = 1024
+	// HTMLFileBodyName <input name="file" /> in request
+	HTMLFileBodyName = "file"
+)
 
-var FileToBeWritten = "./tmp/uploads/" + use
-var FileToBeRead = "./fixtures/" + use
+// StoragePrefix will be used as upload storage path in application
+var StoragePrefix = os.Getenv("UPLOAD_STORAGE") + "/"
+
+var use = large

@@ -7,21 +7,24 @@ import (
 	"github.com/Marvin9/atlan-collect/utils"
 )
 
+// StopAPI - endpoint to stop uploading task
 func StopAPI(w http.ResponseWriter, req *http.Request) {
 	fileToBeWritten, _ := layer.ExtractFileToBeWritten(req)
 
 	processState := utils.GetProcessState(fileToBeWritten)
 
+	// If no process exits...
 	if processState == utils.NULL {
 		w.WriteHeader(http.StatusConflict)
 		w.Write(utils.SetResponse(true, "No instance to stop. Please start instance first"))
 		return
 	}
 
+	// If uploading process is paused
 	if processState == utils.PAUSED {
 		utils.Clear(fileToBeWritten)
 		w.WriteHeader(http.StatusOK)
-		w.Write(utils.SetResponse(false, "Stoppend paused file upload : "+fileToBeWritten))
+		w.Write(utils.SetResponse(false, "Stopped the paused file upload : "+fileToBeWritten))
 		return
 	}
 
