@@ -6,3 +6,7 @@ go:
 script:
     - make build
     - make test
+
+env:
+  global:
+    - UPLOAD_STORAGE=/tmp

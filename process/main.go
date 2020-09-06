@@ -5,9 +5,13 @@ import (
 	"fmt"
 	"mime/multipart"
 	"os"
+	"sync"
 
 	"github.com/Marvin9/atlan-collect/utils"
 )
+
+// Wg - helps in testing
+var Wg sync.WaitGroup
 
 // MakeThreadForUploadProcess is used to start/resume the upload process.
 // It creates upload thread and return immediately.
@@ -17,6 +21,7 @@ import (
 // fileNameToWrite is unique name of input file
 // offsetByte helps from where to start reading input file (0 - if init, n - if this call is to resume upload)
 func MakeThreadForUploadProcess(inputFile multipart.File, fileNameToWrite string, offsetByte int) utils.Controllers {
+	Wg.Add(1)
 	filePathToWrite := utils.StoragePrefix + fileNameToWrite
 	ctrl := utils.Controllers{
 		Pause:  make(chan bool),
@@ -28,6 +33,7 @@ func MakeThreadForUploadProcess(inputFile multipart.File, fileNameToWrite string
 
 	// start thread
 	go (func() {
+		defer Wg.Done()
 		fileToRead := inputFile
 		defer fileToRead.Close()
 
