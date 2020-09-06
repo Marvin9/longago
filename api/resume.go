@@ -10,7 +10,7 @@ import (
 
 // ResumeAPI - endpoint to resume uploading task
 func ResumeAPI(w http.ResponseWriter, req *http.Request) {
-	req.ParseMultipartForm(20 << 20)
+	req.ParseMultipartForm(utils.UploadLimit)
 	fileToBeWritten := req.FormValue("instance_id")
 
 	// If process is not paused... either running or not exist
