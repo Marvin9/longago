@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"mime/multipart"
 	"net/http"
+	"regexp"
 	"strings"
 	"time"
 
@@ -18,9 +19,11 @@ func ExtractFileInfo(req *http.Request) (multipart.File, string, error) {
 		return file, "", err
 	}
 
+	reg, _ := regexp.Compile("[^A-Za-z0-9]+")
 	// unique name => [DATE AS PREFIX]__[ORIGINAL_FILENAME] (EVERYTHING WITHOUT SPACE)
 	filename := handler.Filename
 	filename = strings.ReplaceAll(time.Now().String(), " ", "-") + "__" + strings.ReplaceAll(filename, " ", "-")
+	filename = reg.ReplaceAllString(filename, "-")
 
 	return file, filename, nil
 }

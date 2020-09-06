@@ -30,4 +30,6 @@ UPLOAD_STORAGE=/full/path/where/you/want/to/store/uploaded/files
 
 The API is now available on your host at http://localhost:8000.
 
+> OR 192.168.99.100:8000
+
 [API Documentation.](/docs/API.md)
