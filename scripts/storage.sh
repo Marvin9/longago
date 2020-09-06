@@ -1,3 +1,5 @@
 . ./.env
 
+echo "\nCREATING DIRECTORY AT: $UPLOAD_STORAGE\n"
+
 mkdir -p $UPLOAD_STORAGE

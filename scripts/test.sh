@@ -12,4 +12,4 @@ fi
 
 echo $UPLOAD_STORAGE
 echo "\n"
-UPLOAD_STORAGE=$UPLOAD_STORAGE go test ./... -v
+UPLOAD_STORAGE=$UPLOAD_STORAGE go test ./...

@@ -1,11 +1,19 @@
+PRETTY:="----------------"
+
 .PHONY: clean
 clean:
+	@echo $(PRETTY)
+	@echo "\nCLEANING PREVIOUS STORAGE DIRECTORY & BINARY\n"
 	rm -rf tmp
 	rm -rf atlan-collect
+	@echo "\n"
+	@echo $(PRETTY)
 
 .PHONY: storage
 storage:
+	@echo $(PRETTY)
 	sh ./scripts/storage.sh
+	@echo $(PRETTY)
 
 .PHONY: check
 check: storage
@@ -14,7 +22,7 @@ check: storage
 .PHONY: test
 test: clean
 	sh ./scripts/test.sh
-	make clean
+	make clean	
 
 .PHONY: docker-compose-up
 docker-compose-up: storage
