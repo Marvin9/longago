@@ -10,8 +10,6 @@
 Setup ```.env``` file
 ```
 UPLOAD_STORAGE=/full/path/where/you/want/to/store/uploaded/files
-
-#RECOMMENDED_PATH: ${full_path_of_current_directory}/tmp/uploads
 ```
 
 - Run using docker
