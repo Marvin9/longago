@@ -13,7 +13,7 @@ import (
 
 // ExtractFileInfo parse file from request and provide unique name for that file.
 func ExtractFileInfo(req *http.Request) (multipart.File, string, error) {
-	req.ParseMultipartForm(20 << 20)
+	req.ParseMultipartForm(utils.UploadLimit)
 	file, handler, err := req.FormFile(utils.HTMLFileBodyName)
 	if err != nil {
 		return file, "", err

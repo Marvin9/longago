@@ -12,6 +12,8 @@ const (
 	BufferSize = 1024
 	// HTMLFileBodyName <input name="file" /> in request
 	HTMLFileBodyName = "file"
+	// UploadLimit
+	UploadLimit = 50 << 20
 )
 
 // StoragePrefix will be used as upload storage path in application
